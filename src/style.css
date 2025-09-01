@@ -1,0 +1,27 @@
+/* 하단바 */
+#bottomBar{
+    background-color: #DDDDDD;
+    z-index: 512;
+    position: fixed;
+    left:10%; right:10%; bottom:10px;
+    height:80px; width:auto;
+    border-radius: 10px;
+}
+
+#message{
+    position: absolute;
+    left:10px; top:10px; bottom:10px;
+    width: 90%; height:auto;
+    resize: none;
+}
+
+#message_submit{
+    position:absolute;
+    right:10px; bottom: 10px; top:10px;
+    height: auto;
+}
+
+#chatContainer{
+
+    margin-bottom: 100px;
+}
