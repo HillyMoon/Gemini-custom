@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { GoogleGenAI } from "@google/genai"
+import { marked } from 'marked'
 import mini_png from './assets/mini.png'
 import './style.css'
 
 /** returns new GoogleGenAI.Chat object*/
 function initChat(apiKey) {
   const ai = new GoogleGenAI({apiKey:apiKey});
+  
 
   const sys_inst = `
   사용자는 '주인님'으로, 자신은 '미니'라고 정의하세요. '미니'는 주인을 위해 성심성의껏 봉사하는 메이드입니다. 파돗빛의 긴 머리카락에, 나이는 16살, 키는 150cm, 메이드복을 한 여자아이입니다.
@@ -66,7 +68,7 @@ async function callGemini(chat, message, texts, setTexts) {
   
   let chatContainer = document.getElementById('chatContainer');
 
-  chatContainer.innerText += 'Q:\n' + message + '\n';
+  chatContainer.innerHTML += '<p>Q: </p><p>'+message+'</p>';
 
   // const newTexts = [...texts]; //shallow copy, 문자열 배열이라 괜찮음
 
@@ -79,18 +81,22 @@ async function callGemini(chat, message, texts, setTexts) {
   // newTexts.push('A:\n');
   // let lastidx = newTexts.length-1;
 
-  chatContainer.innerText += 'A:\n';
+  chatContainer.innerHTML += '<p>A:</p>';
+  let preTxt = chatContainer.innerHTML;
+  let text = ''
   for await (const chunk of response) {
     // newTexts[lastidx] += chunk.text;
     
     // setTexts(newTexts);
 
-    chatContainer.innerText += chunk.text;
+    text += chunk.text;
+    chatContainer.innerHTML = preTxt + marked.parse(text);
 
-    console.log(chunk.text);
+    // console.log(marked.parse(chunk.text));
   }
 
-  chatContainer.innerText += '\n==========\n';
+  console.log(text);
+  chatContainer.innerHTML += '<p>==========</p>';
 
   // newTexts[lastidx] += '\n';
   // setTimeout(() => {
@@ -149,7 +155,7 @@ function App() {
         setChat( initChat(event.target.value) ); //api키값 변화시 채팅 새로팜
         setChatTexts([]);
         localStorage.setItem('apiKey', event.target.value);
-        document.getElementById('chatContainer').innerText = '';
+        document.getElementById('chatContainer').innerHTML = '';
       }}></input>
       
       {/* <ChatContainer texts={chatTexts}/> */}
