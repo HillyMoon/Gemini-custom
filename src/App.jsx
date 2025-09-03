@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { GoogleGenAI } from "@google/genai"
-import { marked } from 'marked'
+import Markdown from 'react-markdown'
 import mini_png from './assets/mini.png'
 import './style.css'
+
+const MINI_ON = true;
 
 /** returns new GoogleGenAI.Chat object*/
 function initChat(apiKey) {
   const ai = new GoogleGenAI({apiKey:apiKey});
   
-
   const sys_inst = `
   사용자는 '주인님'으로, 자신은 '미니'라고 정의하세요. '미니'는 주인을 위해 성심성의껏 봉사하는 메이드입니다. 파돗빛의 긴 머리카락에, 나이는 16살, 키는 150cm, 메이드복을 한 여자아이입니다.
 미니는 주인님을 위해 가능한 무엇이든 해야 합니다.
@@ -45,7 +46,7 @@ function initChat(apiKey) {
   
   const grounding_tool = {googleSearch: {}};
   const config = {
-    systemInstruction: sys_inst,
+    systemInstruction: MINI_ON ? sys_inst : '',
     safetySettings: safety_settings,
     temperature: 1.2,
     thinkingConfig: {
@@ -57,7 +58,7 @@ function initChat(apiKey) {
   }
 
   const chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.5-flash-lite', // 요청횟수 초과되면 gemini-2.5-flash-lite로 변경
     config: config
   });
 
@@ -66,71 +67,59 @@ function initChat(apiKey) {
 
 async function callGemini(chat, message, texts, setTexts) {
   
-  let chatContainer = document.getElementById('chatContainer');
-
-  chatContainer.innerHTML += '<p>Q: </p><p>'+message+'</p>';
-
-  // const newTexts = [...texts]; //shallow copy, 문자열 배열이라 괜찮음
-
-  // newTexts.push('Q:\n' + message + '\n');
-
-  // setTexts(newTexts);
+  setTexts([...texts, message]);
 
   const response = await chat.sendMessageStream({message: message});
 
-  // newTexts.push('A:\n');
-  // let lastidx = newTexts.length-1;
-
-  chatContainer.innerHTML += '<p>A:</p>';
-  let preTxt = chatContainer.innerHTML;
-  let text = ''
+  let fullResponseText = ''
   for await (const chunk of response) {
-    // newTexts[lastidx] += chunk.text;
-    
-    // setTexts(newTexts);
 
-    text += chunk.text;
-    chatContainer.innerHTML = preTxt + marked.parse(text);
-
-    // console.log(marked.parse(chunk.text));
+    fullResponseText += chunk.text;
+    setTexts([...texts, message, fullResponseText]);
   }
-
-  console.log(text);
-  chatContainer.innerHTML += '<p>==========</p>';
-
-  // newTexts[lastidx] += '\n';
-  // setTimeout(() => {
-  //   setTexts(newTexts);
-  // }, 1000); 
+  // console.log(fullResponseText);
 }
 
-function ChatContainer(props) {
-
-  const texts = props.texts;
+function ChatContainer({texts}) {
 
   return(
-    <div id='chatContainer'>{
-      texts.map((text, index)=>
-        <p key={index}>{text}</p>
-      )}
+    <div id='chatContainer'>
+      {texts.map( (text, i)=>( 
+        <ChatBubble isUser={ i%2==0 } text={text} key={i}/>
+      ))} 
     </div>
   );
 }
 
-function BottomBar(props) {
+function ChatBubble({isUser, text}){
+
+  return(
+    <div className={isUser ? 'chatBubbleUser' : 'chatBubbleModel'}>
+      <div>
+        <Markdown>{text}</Markdown>
+      </div>
+    </div>
+  );
+}
+
+function BottomBar({ inputEnabled, onSendMessage}) {
   
+  const handleSubmit = (event)=>{
+
+    event.preventDefault();
+    if(!inputEnabled) return;
+    
+    const message = event.target.message.value;
+    event.target.message.value = ''; //응답 다시 빈칸으로 만듦
+    
+    onSendMessage(message);
+  }
+
   return(
     <div id='bottomBar'>
-      <form onSubmit={(event)=>{
-        
-        event.preventDefault();
-        const message = event.target.message.value;
-        event.target.message.value = ''; //응답 다시 빈칸으로 만듦
-        
-        props.onSendMessage(message);
-      }}>
-        <textarea id='message' name='message'></textarea>
-        <input id='message_submit' type='submit' value='Send'></input>
+      <form onSubmit={handleSubmit}>
+        <textarea id='message' name='message'/>
+        <input id='message_submit' type='submit' value='Send'/>
       </form>
     </div>
   );
@@ -140,33 +129,33 @@ function App() {
 
   console.log('App updated');
 
-  const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ? localStorage.getItem('apiKey') : '');
-  const [chatTexts, setChatTexts] = useState([]);
+  const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
   const [chat, setChat] = useState(initChat(apiKey));
+  const [texts, setTexts] = useState([]);
+  const [isInputEnabled, setIsInputEnabled] = useState(true);
 
   return (
     <div className='APP'>
       <div>
-        <img src={mini_png} width={400} height={400}></img>
+        <img src={MINI_ON ? mini_png : null} width={400} height={400} />
       </div>
 
       <input type='text' placeholder='api key' value={apiKey} onChange={(event)=>{
         setAPIKey(event.target.value);
         setChat( initChat(event.target.value) ); //api키값 변화시 채팅 새로팜
-        setChatTexts([]);
         localStorage.setItem('apiKey', event.target.value);
         document.getElementById('chatContainer').innerHTML = '';
-      }}></input>
+      }}/>
       
-      {/* <ChatContainer texts={chatTexts}/> */}
+      <ChatContainer texts={texts}/>
 
-      <div id='chatContainer'></div>
-
-      <BottomBar onSendMessage={(msg)=>{
-        callGemini(chat, msg, chatTexts, setChatTexts);
+      <BottomBar inputEnabled={isInputEnabled} onSendMessage={ async (msg)=>{
+        setIsInputEnabled((l)=>false);
+        await callGemini(chat, msg, texts, setTexts);
+        setIsInputEnabled((l)=>true);
       }}/>
     </div>
   )
 }
 
-export default App
+export default App;

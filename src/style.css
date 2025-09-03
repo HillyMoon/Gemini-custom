@@ -1,4 +1,9 @@
 /* 하단바 */
+
+* {
+   font-family: sans-serif; 
+}
+
 #bottomBar{
     background-color: #DDDDDD;
     z-index: 512;
@@ -22,6 +27,39 @@
 }
 
 #chatContainer{
+    margin-top: 5px; margin-bottom: 100px;
+    overflow: hidden;
+    height: auto
+}
 
-    margin-bottom: 100px;
+.chatBubbleUser{
+    float: right;
+    width: 60%; height:auto;
+    margin-bottom: 10px;
+}
+.chatBubbleUser>div{
+    float: right;
+    background-color: lightgray;
+    border-radius: 20px;
+    padding: 12px;
+}
+.chatBubbleUser p{
+    margin: 0;
+    width:fit-content;
+}
+
+.chatBubbleModel{
+    float: left;
+    width: 80%;
+    margin-bottom: 10px;
+}
+.chatBubbleModel>div{
+    display: inline-block;
+    background-color: lightgray;
+    border-radius: 20px;
+    padding: 12px;
+}
+.chatBubbleModel p{
+    margin: 0;
+    width:fit-content;
 }
