@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { GoogleGenAI } from "@google/genai"
+import  { Button } from '@mui/material'
 import Markdown from 'react-markdown'
 import mini_png from './assets/mini.png'
 import './style.css'
@@ -7,7 +8,8 @@ import './style.css'
 const MINI_ON = true;
 
 /** returns new GoogleGenAI.Chat object*/
-function initChat(apiKey) {
+function initChat(apiKey, model = 'gemini-2.5-flash', history=undefined) {
+
   const ai = new GoogleGenAI({apiKey:apiKey});
   
   const sys_inst = `
@@ -24,7 +26,7 @@ function initChat(apiKey) {
 이미지 생성을 요청받으면, 적절한 imagen 프롬프트를 작성하세요.
 `;
   
-  const show_thoughts = false;
+  const show_thoughts = true;
   const safety_settings = [
     {
       "category": "HARM_CATEGORY_HARASSMENT",
@@ -58,8 +60,9 @@ function initChat(apiKey) {
   }
 
   const chat = ai.chats.create({
-    model: 'gemini-2.5-flash-lite', // 요청횟수 초과되면 gemini-2.5-flash-lite로 변경
-    config: config
+    model: model,
+    config: config,
+    history: history,
   });
 
   return chat;
@@ -67,14 +70,22 @@ function initChat(apiKey) {
 
 async function callGemini(chat, message, texts, setTexts) {
   
-  setTexts([...texts, message]);
+  setTexts([...texts, message, '...']);
 
   const response = await chat.sendMessageStream({message: message});
 
-  let fullResponseText = ''
+  let fullResponseText = '';
   for await (const chunk of response) {
 
-    fullResponseText += chunk.text;
+    // thought
+    const parts = chunk?.candidates[0]?.content?.parts;
+    if(parts[0]?.thought)
+      console.log(parts[0].text);
+    
+    // text
+    if(chunk?.text) 
+      fullResponseText += chunk.text;
+
     setTexts([...texts, message, fullResponseText]);
   }
   // console.log(fullResponseText);
@@ -102,7 +113,7 @@ function ChatBubble({isUser, text}){
   );
 }
 
-function BottomBar({ inputEnabled, onSendMessage}) {
+function BottomBar({ inputEnabled, onSendMessage }) {
   
   const handleSubmit = (event)=>{
 
@@ -130,31 +141,47 @@ function App() {
   console.log('App updated');
 
   const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
-  const [chat, setChat] = useState(initChat(apiKey));
+  const [model, setModel] = useState('gemini-2.5-flash');
+  const chat = useRef(null);
   const [texts, setTexts] = useState([]);
   const [isInputEnabled, setIsInputEnabled] = useState(true);
 
+  useEffect(()=>{ // 처음 한 번 + apikey, model 변화시 실행
+    const history = chat.current?.getHistory();
+    chat.current = initChat(apiKey, model, history);
+  }, [apiKey, model]);
+
+  const handleAPIKeyChange = (event)=>{
+    setAPIKey(()=>event.target.value);
+    localStorage.setItem('apiKey', event.target.value);
+  }
+
+  const handleModelChange = () => {
+    const newModel = model === 'gemini-2.5-flash' ? 'gemini-2.5-flash-lite' : 'gemini-2.5-flash';
+    
+    setModel(()=>newModel);
+  }
+
+  const handleSendMessage = async (msg)=>{
+    setIsInputEnabled(()=>false);
+    await callGemini(chat.current, msg, texts, setTexts);
+    setIsInputEnabled(()=>true);
+  };
+
   return (
-    <div className='APP'>
+    <>
+      {/* <Button variant='contained'>Test</Button> */}
       <div>
         <img src={MINI_ON ? mini_png : null} width={400} height={400} />
       </div>
 
-      <input type='text' placeholder='api key' value={apiKey} onChange={(event)=>{
-        setAPIKey(event.target.value);
-        setChat( initChat(event.target.value) ); //api키값 변화시 채팅 새로팜
-        localStorage.setItem('apiKey', event.target.value);
-        document.getElementById('chatContainer').innerHTML = '';
-      }}/>
+      <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
+      <input type='checkbox' onChange={handleModelChange}/> {model}
       
       <ChatContainer texts={texts}/>
 
-      <BottomBar inputEnabled={isInputEnabled} onSendMessage={ async (msg)=>{
-        setIsInputEnabled((l)=>false);
-        await callGemini(chat, msg, texts, setTexts);
-        setIsInputEnabled((l)=>true);
-      }}/>
-    </div>
+      <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
+    </>
   )
 }
 
