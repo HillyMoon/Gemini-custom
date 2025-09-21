@@ -2,6 +2,12 @@
    font-family: sans-serif; 
 }
 
+/* github 링크 색깔적용 x */
+a {
+    color:inherit;
+}
+
+/* 하단바 */
 #bottomBar{
     background-color: #DDDDDD;
     z-index: 512;
@@ -24,6 +30,7 @@
     height: auto;
 }
 
+/* 채팅창 */
 #chatContainer{
     margin-top: 5px; margin-bottom: 100px;
     overflow: hidden;
@@ -62,6 +69,7 @@
     width:fit-content;
 }
 
+/* 다크모드에서 말풍선 색 변경 */
 @media (prefers-color-scheme: dark){
 
     .chatBubbleModel>div{

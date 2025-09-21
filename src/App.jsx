@@ -1,9 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { GoogleGenAI } from "@google/genai"
-import  { Button } from '@mui/material'
 import Markdown from 'react-markdown'
 import mini_png from './assets/mini.png'
 import './style.css'
+import ThemeContext from './ThemeContext'
+
+import Stack from '@mui/material/Stack';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 const MINI_ON = true;
 
@@ -140,6 +145,7 @@ function App() {
 
   console.log('App updated');
 
+  const { mode, toggleMode } = useContext(ThemeContext); // light/dark mode context
   const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
   const [model, setModel] = useState('gemini-2.5-flash');
   const chat = useRef(null);
@@ -170,19 +176,23 @@ function App() {
 
   return (
     <>
-      {/* <Button variant='contained'>Test</Button> */}
       <div>
         <img src={MINI_ON ? mini_png : null} width={400} height={400} />
       </div>
 
-      <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
-      <input type='checkbox' onChange={handleModelChange}/> {model}
+      {/* Settings */}
+      <Stack direction="row" spacing={2}>
+        <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
+        <input type='checkbox' onChange={handleModelChange}/> {model}
+        { mode==='light'? <LightModeIcon onClick={toggleMode}/> : <DarkModeIcon onClick={toggleMode}/> }
+        <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
+      </Stack>
       
       <ChatContainer texts={texts}/>
 
       <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
     </>
-  )
+  );
 }
 
 export default App;
