@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { GoogleGenAI } from "@google/genai"
 import Markdown from 'react-markdown'
-import mini_png from './assets/mini.png'
+import mini_png from '/assets/mini.png'
 import './style.css'
 import ThemeContext from './ThemeContext'
 
@@ -176,9 +176,7 @@ function App() {
 
   return (
     <>
-      <div>
-        <img src={MINI_ON ? mini_png : null} width={400} height={400} />
-      </div>
+      {/* <img src={MINI_ON ? mini_png : null} width={400} height={400} /> */}
 
       {/* Settings */}
       <Stack direction="row" spacing={2}>

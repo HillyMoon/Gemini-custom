@@ -5,3 +5,5 @@
 [Visit](https://hillymoon.github.io/Gemini-custom/)
 
 [API 키 발급](https://aistudio.google.com/apikey)
+
+VRM 모델: [生駒ミル](https://booth.pm/ko/items/3521047) ©Avex Technologies Inc.
