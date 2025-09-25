@@ -22,7 +22,7 @@ export default function ModelViewer() {
   renderer.setSize(width, height);
 
   const loader = new GLTFLoader();
-  loader.load('Gemini-custom/assets/生駒ミル_私服.vrm', (gltf) => {
+  loader.load('./assets/生駒ミル_私服.vrm', (gltf) => {
     scene.add(gltf.scene);
     renderer.render(scene, camera);
   }, (xhr)=>{
