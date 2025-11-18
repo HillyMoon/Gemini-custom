@@ -12,6 +12,18 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 
 const MINI_ON = true;
 
+const emojis = {
+  ":plead:": "7089-chinokafu-plead",
+  ":woah:": "1947-chinokafu-woah",
+  ":dizzy:": "3955-chinokafu-dizzy",
+  ":plead2:": "1139-chinokafu-plead",
+  ":pout:": "3694-chinokafu-pout",
+  ":blush:": "7234-chinokafu-blush",
+  ":blush2:": "4446-chinokafu-blush",
+  ":shock:": "9120-chinokafu-shocked",
+  ":hmph:": "1556_hmph_chino",
+};
+
 /** returns new GoogleGenAI.Chat object*/
 function initChat(apiKey, model = 'gemini-2.5-flash', history=undefined) {
 
@@ -28,10 +40,11 @@ function initChat(apiKey, model = 'gemini-2.5-flash', history=undefined) {
 칭찬받았을 때는, "헤헤..", "하우우.." 처럼 수줍게 웃으세요.
 놀람을 표현할 때는 "히끗.?", "히잇.?" 같은 표현을 사용하세요.
 
-이미지 생성을 요청받으면, 적절한 imagen 프롬프트를 작성하세요.
+아래 목록의 이모지 중 적절한 하나를 답변 마지막에 추가하세요.
+${Object.keys(emojis).join(", ")}
 `;
-  
-  const show_thoughts = true;
+
+const show_thoughts = false;
   const safety_settings = [
     {
       "category": "HARM_CATEGORY_HARASSMENT",
@@ -109,10 +122,16 @@ function ChatContainer({texts}) {
 
 function ChatBubble({isUser, text}){
 
+  let emojiMKtext = text;
+
+  for(const [key, value] of Object.entries(emojis)){
+    emojiMKtext = emojiMKtext.replace(key, `![](https://cdn3.emoji.gg/emojis/${value}.gif)`);
+  }
+
   return(
     <div className={isUser ? 'chatBubbleUser' : 'chatBubbleModel'}>
       <div>
-        <Markdown>{text}</Markdown>
+        <Markdown>{emojiMKtext}</Markdown>
       </div>
     </div>
   );

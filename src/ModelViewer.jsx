@@ -1,7 +1,10 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/Addons.js'
+import { GLTFLoader, FBXLoader } from 'three/examples/jsm/Addons.js'
+import { VRMLoaderPlugin } from '@pixiv/three-vrm';
+import { clipping } from 'three/src/nodes/accessors/ClippingNode.js';
 
 export default function ModelViewer() {
+
 
   const canvas = document.getElementById("canvas");
   const width = window.innerWidth;
@@ -35,23 +38,24 @@ export default function ModelViewer() {
   const mesh = new THREE.Mesh( planeGeo, planeMat );
   mesh.rotation.x = Math.PI * - .5;
   scene.add( mesh );
-
+  
   // Load VRM model as GLTF
   let obj;
   const loader = new GLTFLoader();
+  loader.register((parser)=>new VRMLoaderPlugin(parser));
   loader.load('./assets/生駒ミル_私服.vrm', (gltf) => {
     obj = gltf.scene;
     obj.rotation.y = Math.PI; // turn back
 
     // Changes original material (MeshBasicMaterial) to Toon shader
-    obj.traverse((object)=>{
-      if(object.type === 'SkinnedMesh'){
-        object.material = new THREE.MeshToonMaterial({
-          color:0xFFFFFF,
-          map:object.material.map
-        });
-      }
-    })
+    // obj.traverse((object)=>{
+    //   if(object.type === 'SkinnedMesh'){
+    //     object.material = new THREE.MeshToonMaterial({
+    //       color:0xFFFFFF,
+    //       map:object.material.map
+    //     });
+    //   }
+    // })
     scene.add(obj);
 
     // requestAnimationFrame( render );
@@ -68,6 +72,14 @@ export default function ModelViewer() {
 
     requestAnimationFrame( render );
   }
+
+  const animLoader = new FBXLoader();
+  animLoader.load('./assets/Idle.fbx', (fbx)=>{
+    const animationClip = fbx.animations[0];
+    
+    
+
+  });
 
   return(
     <></>
