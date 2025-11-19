@@ -7,7 +7,7 @@ import ModelViewer from './ModelViewer.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeWrapper>
-      <ModelViewer />
+      {/* <ModelViewer /> */}
       <App />
     </ThemeWrapper>
   </StrictMode>,

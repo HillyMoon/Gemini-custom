@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { GoogleGenAI } from "@google/genai"
-import Markdown from 'react-markdown'
-import mini_png from '/assets/mini.png'
 import './style.css'
 import ThemeContext from './ThemeContext'
 
@@ -10,19 +8,11 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
-const MINI_ON = true;
+import DiscordWindow from './DiscordWindow'
 
-const emojis = {
-  ":plead:": "7089-chinokafu-plead",
-  ":woah:": "1947-chinokafu-woah",
-  ":dizzy:": "3955-chinokafu-dizzy",
-  ":plead2:": "1139-chinokafu-plead",
-  ":pout:": "3694-chinokafu-pout",
-  ":blush:": "7234-chinokafu-blush",
-  ":blush2:": "4446-chinokafu-blush",
-  ":shock:": "9120-chinokafu-shocked",
-  ":hmph:": "1556_hmph_chino",
-};
+import emojis from './emojis.json' with {type: "json"};
+
+const MINI_ON = true;
 
 /** returns new GoogleGenAI.Chat object*/
 function initChat(apiKey, model = 'gemini-2.5-flash', history=undefined) {
@@ -109,34 +99,6 @@ async function callGemini(chat, message, texts, setTexts) {
   // console.log(fullResponseText);
 }
 
-function ChatContainer({texts}) {
-
-  return(
-    <div id='chatContainer'>
-      {texts.map( (text, i)=>( 
-        <ChatBubble isUser={ i%2==0 } text={text} key={i}/>
-      ))} 
-    </div>
-  );
-}
-
-function ChatBubble({isUser, text}){
-
-  let emojiMKtext = text;
-
-  for(const [key, value] of Object.entries(emojis)){
-    emojiMKtext = emojiMKtext.replace(key, `![](https://cdn3.emoji.gg/emojis/${value}.gif)`);
-  }
-
-  return(
-    <div className={isUser ? 'chatBubbleUser' : 'chatBubbleModel'}>
-      <div>
-        <Markdown>{emojiMKtext}</Markdown>
-      </div>
-    </div>
-  );
-}
-
 function BottomBar({ inputEnabled, onSendMessage }) {
   
   const handleSubmit = (event)=>{
@@ -195,8 +157,6 @@ function App() {
 
   return (
     <>
-      {/* <img src={MINI_ON ? mini_png : null} width={400} height={400} /> */}
-
       {/* Settings */}
       <Stack direction="row" spacing={2}>
         <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
@@ -204,8 +164,8 @@ function App() {
         { mode==='light'? <LightModeIcon onClick={toggleMode}/> : <DarkModeIcon onClick={toggleMode}/> }
         <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
       </Stack>
-      
-      <ChatContainer texts={texts}/>
+
+      <DiscordWindow texts={texts} />
 
       <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
     </>
