@@ -42,7 +42,21 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import emojis from './emojis.json' with {type: "json"};
 
-function DiscordChatParser({ profile='User', text }) {
+const profiles = {
+  model: {
+    author: '미니',
+    avatar: './assets/mini.png',
+    bot: true,
+    verified: true,
+    roleColor: '#1e88e5'
+  },
+  user: {
+    author: 'User',
+    roleColor: '#ff0000'
+  }
+};
+
+function DiscordChatParser({ profile, text }) {
   
   let emojiMKtext = text;
 
@@ -51,7 +65,7 @@ function DiscordChatParser({ profile='User', text }) {
   }
 
   return(
-    <DiscordMessage profile={profile}>
+    <DiscordMessage {...profile}>
       <ReactMarkdown
         children={emojiMKtext}
         remarkPlugins={[remarkGfm]}
@@ -86,11 +100,11 @@ function DiscordChatParser({ profile='User', text }) {
   );
 }
 
-function DiscordWindow({texts}){
+function DiscordWindow({texts}){ texts = ['hi', 'hello']
   return(
     <DiscordMessages>
       {texts.map( (text, i)=>( 
-        <DiscordChatParser text={text} key={i}/>
+        <DiscordChatParser profile={profiles[i%2 ? 'model' : 'user']} text={text} key={i}/>
       ))}
     </DiscordMessages>
   );

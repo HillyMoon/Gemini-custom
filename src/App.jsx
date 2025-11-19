@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { GoogleGenAI } from "@google/genai"
-import './style.css'
 import ThemeContext from './ThemeContext'
 
 import Stack from '@mui/material/Stack';
@@ -123,8 +122,6 @@ function BottomBar({ inputEnabled, onSendMessage }) {
 }
 
 function App() {
-
-  console.log('App updated');
 
   const { mode, toggleMode } = useContext(ThemeContext); // light/dark mode context
   const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
