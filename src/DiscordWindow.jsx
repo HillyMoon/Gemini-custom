@@ -100,7 +100,7 @@ function DiscordChatParser({ profile, text }) {
   );
 }
 
-function DiscordWindow({texts}){ texts = ['hi', 'hello']
+function DiscordWindow({texts}){
   return(
     <DiscordMessages>
       {texts.map( (text, i)=>( 
