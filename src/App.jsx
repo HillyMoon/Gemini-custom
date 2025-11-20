@@ -10,6 +10,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import DiscordWindow from './DiscordWindow'
 
 import emojis from './emojis.json' with {type: "json"};
+import { Box } from '@mui/material';
 
 const MINI_ON = true;
 
@@ -75,10 +76,13 @@ const show_thoughts = false;
   return chat;
 }
 
-async function callGemini(chat, message, texts, setTexts) {
+async function callGemini(chat, message, texts, setTexts, setIsTyping) {
   
-  setTexts([...texts, message, '...']);
-
+  setTexts([...texts, message]);
+  const timeout = setTimeout(() => {
+    setIsTyping(()=>true);
+  }, 500); 
+  
   const response = await chat.sendMessageStream({message: message});
 
   let fullResponseText = '';
@@ -90,10 +94,17 @@ async function callGemini(chat, message, texts, setTexts) {
       console.log(parts[0].text);
     
     // text
-    if(chunk?.text) 
+    if(chunk?.text) {
+      
+      // 실제 답변이 나오기 시작하면 typing 메시지 제거
+      if(fullResponseText === '') {
+        clearTimeout(timeout);
+        setIsTyping(()=>false);
+      }
+      
       fullResponseText += chunk.text;
-
-    setTexts([...texts, message, fullResponseText]);
+      setTexts([...texts, message, fullResponseText]);
+    }
   }
   // console.log(fullResponseText);
 }
@@ -129,6 +140,7 @@ function App() {
   const chat = useRef(null);
   const [texts, setTexts] = useState([]);
   const [isInputEnabled, setIsInputEnabled] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(()=>{ // 처음 한 번 + apikey, model 변화시 실행
     const history = chat.current?.getHistory();
@@ -148,7 +160,7 @@ function App() {
 
   const handleSendMessage = async (msg)=>{
     setIsInputEnabled(()=>false);
-    await callGemini(chat.current, msg, texts, setTexts);
+    await callGemini(chat.current, msg, texts, setTexts, setIsTyping);
     setIsInputEnabled(()=>true);
   };
 
@@ -163,6 +175,8 @@ function App() {
       </Stack>
 
       <DiscordWindow texts={texts} />
+
+      {isTyping && <Box component="span" sx={{border: "1px dashed lightgrey"}}><b>Mini</b> is typing...</Box>}
 
       <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
     </>

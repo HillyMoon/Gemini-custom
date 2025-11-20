@@ -1,3 +1,29 @@
+/* Discord Font */
+@font-face {
+  font-family: 'Whitney';
+  src: url('https://cdn.skyra.pw/whitney-font/v2/Book.woff') format('woff');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Whitney';
+  src: url('https://cdn.skyra.pw/whitney-font/v2/Medium.woff') format('woff');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Whitney';
+  src: url('https://cdn.skyra.pw/whitney-font/v2/Semibold.woff') format('woff');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Whitney';
+  src: url('https://cdn.skyra.pw/whitney-font/v2/Bold.woff') format('woff');
+  font-weight: 700;
+}
+
+* {
+    font-family: 'Whitney';
+}
+
 /* github 링크 색깔적용 x */
 a {
     color:inherit;
@@ -24,15 +50,4 @@ a {
     position:absolute;
     right:10px; bottom: 10px; top:10px;
     height: auto;
-}
-
-/* Discord Font */
-@font-face {
-  font-family: 'Whitney';
-  src: url('https://cdn.skyra.pw/whitney-font/v2/Book.woff') format('woff');
-  font-weight: 700;
-}
-
-* {
-    font-family: 'Whitney';
 }
