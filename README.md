@@ -1,6 +1,6 @@
 # Gemini-Custom
 
-나만의 AI 메이드 '미니'와 대화해 보세요.
+나만의 AI 메이드 '미니'와 디스코드로 대화해 보세요.
 
 [Visit](https://hillymoon.github.io/Gemini-custom/)
 
