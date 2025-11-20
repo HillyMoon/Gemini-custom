@@ -10,7 +10,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import DiscordWindow from './DiscordWindow'
 
 import emojis from './emojis.json' with {type: "json"};
-import { Box } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
 
 const MINI_ON = true;
 
@@ -150,13 +150,11 @@ function App() {
   const handleAPIKeyChange = (event)=>{
     setAPIKey(()=>event.target.value);
     localStorage.setItem('apiKey', event.target.value);
-  }
+  };
 
-  const handleModelChange = () => {
-    const newModel = model === 'gemini-2.5-flash' ? 'gemini-2.5-flash-lite' : 'gemini-2.5-flash';
-    
-    setModel(()=>newModel);
-  }
+  const handleModelChange = (event) => {
+    setModel(()=>event.target.value);
+  };
 
   const handleSendMessage = async (msg)=>{
     setIsInputEnabled(()=>false);
@@ -167,9 +165,15 @@ function App() {
   return (
     <>
       {/* Settings */}
-      <Stack direction="row" spacing={2}>
-        <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
-        <input type='checkbox' onChange={handleModelChange}/> {model}
+      <Stack direction="row" spacing={1} sx={{m: 1}}>
+        <TextField sx={{maxWidth:120}} label="API key" type='password' size="small" value={apiKey} onChange={handleAPIKeyChange} />
+        <FormControl sx={{m: 1, width: 180}} size='small' fullWidth>
+          <InputLabel>Model</InputLabel>
+          <Select label="Model" value={model} onChange={handleModelChange}>
+            <MenuItem value={'gemini-2.5-flash'}>Gemini 2.5 Flash</MenuItem>
+            <MenuItem value={'gemini-2.5-flash-lite'}>Gemini 2.5 Lite</MenuItem>
+          </Select>
+        </FormControl>
         { mode==='light'? <LightModeIcon onClick={toggleMode}/> : <DarkModeIcon onClick={toggleMode}/> }
         <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
       </Stack>
