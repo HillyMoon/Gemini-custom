@@ -111,11 +111,13 @@ function DiscordWindow({texts}){
   const { darkMode } = useContext(ThemeContext);
 
   return(
-    <DiscordMessages lightTheme={!darkMode}>
-      {texts.map( (text, i)=>( 
-        <DiscordChatParser profile={profiles[i%2 ? 'model' : 'user']} text={text} key={i}/>
-      ))}
-    </DiscordMessages>
+    <div id="discordWindow">
+      <DiscordMessages lightTheme={!darkMode}>
+        {texts.map( (text, i)=>( 
+          <DiscordChatParser profile={profiles[i%2 ? 'model' : 'user']} text={text} key={i}/>
+        ))}
+      </DiscordMessages>
+    </div>
   );
 }
 
