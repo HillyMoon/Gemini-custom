@@ -85,7 +85,7 @@ function BottomBar({ isTyping, inputEnabled, onSendMessage }) {
     <>
       {isTyping && <TypingIndicator />}
       <div id='bottomBar'>
-        <textarea id='message' onKeyDown={handleKeyDown} name='message' placeholder='#chat' rows={3}/>
+        <textarea id='message' onKeyDown={handleKeyDown} name='message' placeholder='Message #Gemini-custom'/>
       </div>
     </>
   );

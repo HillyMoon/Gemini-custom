@@ -108,6 +108,7 @@ async function callGemini(chat, message, texts, setTexts, setIsTyping) {
     }
   }
   // console.log(fullResponseText);
+  console.log(chat.getHistory());
 }
 
 
