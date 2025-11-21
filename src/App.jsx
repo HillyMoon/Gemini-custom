@@ -10,7 +10,8 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import DiscordWindow from './DiscordWindow'
 
 import emojis from './emojis.json' with {type: "json"};
-import { Box, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
+import { BasicShader } from 'three/examples/jsm/Addons.js';
 
 const MINI_ON = true;
 
@@ -111,30 +112,94 @@ async function callGemini(chat, message, texts, setTexts, setIsTyping) {
 
 function BottomBar({ inputEnabled, onSendMessage }) {
   
-  const handleSubmit = (event)=>{
+  const handleKeyDown = (event) => {
+    if(event.key === 'Enter' && !event.shiftKey){ //shift+Enter아닌 그냥 Enter에서
+      event.preventDefault(); //Enter를 입력받지않음
+      
+      if(!inputEnabled) return;
+      
+      const message = event.target.value;
+      event.target.value=''; //응답 다시 빈칸으로 만듬
 
-    event.preventDefault();
-    if(!inputEnabled) return;
-    
-    const message = event.target.message.value;
-    event.target.message.value = ''; //응답 다시 빈칸으로 만듦
-    
-    onSendMessage(message);
-  }
+      onSendMessage(message);
+    }
+  };
 
   return(
     <div id='bottomBar'>
-      <form onSubmit={handleSubmit}>
-        <textarea id='message' name='message'/>
-        <input id='message_submit' type='submit' value='Send'/>
-      </form>
+      <textarea id='message' onKeyDown={handleKeyDown} name='message' placeholder='#chat' rows={3}/>
+    </div>
+  );
+}
+
+function useInterval(callback, delay) {
+	const savedCallback = useRef();
+    
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+  
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
+
+function TypingIndicator() {
+
+  const fps = 30;
+  const [frame, setFrame] = useState(0);
+  const {darkMode} = useContext(ThemeContext);
+  
+  useInterval(()=>{
+    setFrame((f)=>(f+1)%fps);
+  }, 1000/fps);
+
+  const getStyle = (f) => {
+
+    // generates 0.5s long pulse, range: (idle) 0 - 1 (peak)
+    const pulse = Math.max(1, Math.abs(f-fps/2) * 4/fps)-1;
+    
+    const brightness = darkMode ? (pulse*128 + 128) : (-pulse*128 + 128);
+    const backgroundColor = `rgb(${brightness}, ${brightness}, ${brightness})`;
+
+    const size = pulse*2 + 6;
+
+    return {
+      backgroundColor,
+      width: size,
+      height: size,
+    };
+  };
+
+  return(
+    <div id='typingIndicator'>
+      <div id='typingDotContainer'>
+        <div className='typingDotWrapper'>
+          <div className='typingDot' style={getStyle( (frame+fps/3)%fps )}/>
+        </div>
+        <div className='typingDotWrapper'>
+          <div className='typingDot' style={getStyle( (frame+fps/6)%fps )}/>
+        </div>
+        <div className='typingDotWrapper'>
+          <div className='typingDot' style={getStyle(  frame  )}/>
+        </div>
+      </div>
+      <span>
+        <b>Mini</b> is typing...
+      </span>
     </div>
   );
 }
 
 function App() {
 
-  const { mode, toggleMode } = useContext(ThemeContext); // light/dark mode context
+  const { darkMode, toggleMode } = useContext(ThemeContext); // light/dark mode context
   const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
   const [model, setModel] = useState('gemini-2.5-flash');
   const chat = useRef(null);
@@ -163,7 +228,7 @@ function App() {
   };
 
   return (
-    <>
+    <div id="mainWrapper">
       {/* Settings */}
       <Stack direction="row" spacing={1} sx={{m: 1}}>
         <TextField sx={{maxWidth:120}} label="API key" type='password' size="small" value={apiKey} onChange={handleAPIKeyChange} />
@@ -174,16 +239,20 @@ function App() {
             <MenuItem value={'gemini-2.5-flash-lite'}>Gemini 2.5 Lite</MenuItem>
           </Select>
         </FormControl>
-        { mode==='light'? <LightModeIcon onClick={toggleMode}/> : <DarkModeIcon onClick={toggleMode}/> }
+        { darkMode ? <DarkModeIcon onClick={toggleMode}/> : <LightModeIcon onClick={toggleMode}/> }
         <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
       </Stack>
+      
+      <div id='contentContainer'>
+        <div id="discordWindow">
+          <DiscordWindow texts={texts} />
+        </div>
 
-      <DiscordWindow texts={texts} />
+        {isTyping && <TypingIndicator />}
 
-      {isTyping && <Box component="span" sx={{border: "1px dashed lightgrey"}}><b>Mini</b> is typing...</Box>}
-
-      <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
-    </>
+        <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
+      </div>
+    </div>
   );
 }
 

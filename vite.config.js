@@ -4,5 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base:"/Gemini-custom/"
+  base:"/Gemini-custom/",
+  server: {
+    host: '0.0.0.0'
+  }
 })

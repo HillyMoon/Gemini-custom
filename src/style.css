@@ -1,3 +1,7 @@
+:root{
+  color-scheme: light dark;
+}
+
 /* Discord Font */
 @font-face {
   font-family: 'Whitney';
@@ -21,33 +25,75 @@
 }
 
 * {
-    font-family: 'Whitney';
+  font-family: 'Whitney';
 }
 
-/* github 링크 색깔적용 x */
-a {
-    color:inherit;
+/* 모든요소 감싸는 div, 전체화면 */
+div#mainWrapper{
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 디스코드창 */
+div#contentContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 디스코드 채팅기록 */
+div#discordWindow {
+  flex: 1;
+  overflow-y: auto;
+  color-scheme: var(--color-scheme);
 }
 
 /* 하단바 */
 #bottomBar{
-    background-color: #DDDDDD;
-    z-index: 512;
-    position: fixed;
-    left:10%; right:10%; bottom:10px;
-    height:80px; width:auto;
-    border-radius: 10px;
+  background-color: light-dark( white, darkslategrey );
+  position: relative;
+  margin: 0 8px 8px;
+  padding: 8px;
+  height:80px;
+  border: 1px solid #505050;
+  border-radius: 10px;
 }
 
 #message{
-    position: absolute;
-    left:10px; top:10px; bottom:10px;
-    width: 90%; height:auto;
-    resize: none;
+  position: relative;
+  width: 100%; height: 100%;
+  color-scheme: var(--color-scheme);
+  font-size: 16px;
+  resize: none;
 }
 
-#message_submit{
-    position:absolute;
-    right:10px; bottom: 10px; top:10px;
-    height: auto;
+/* 입력중 표시 */
+div#typingIndicator {
+  font-size: 13px;
+  padding-left: 14.4px;
+  display: flex;
+  align-items: center;
+}
+div#typingDotContainer {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+div.typingDotWrapper{
+  width:9px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+div.typingDot {
+  background-color: white;
+  border-radius: 4px;
+}
+
+/* github 링크 색깔적용 x */
+a {
+  color:inherit;
 }

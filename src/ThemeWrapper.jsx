@@ -5,18 +5,19 @@ import ThemeContext from './ThemeContext';
 // provides ThemeConfig context to child components to read and set theme.
 export default function ThemeWrapper({ children }) {
 
-  const [mode, setMode] = useState(useMediaQuery('(prefers-color-scheme: dark)') ? 'dark' : 'light');
+  const [darkMode, setMode] = useState(useMediaQuery('(prefers-color-scheme: dark)'));
 
   const themeConfig = {
-    mode,
+    darkMode,
     toggleMode: ()=>{
-      setMode(prev=> prev === 'light' ? 'dark' : 'light');
+      document.documentElement.style.setProperty('color-scheme', darkMode ? 'light' : 'dark');
+      setMode(prev=> !prev);
     }
   };
 
   const theme = createTheme({
     palette: {
-      mode,
+      mode: (darkMode ? 'dark' : 'light')
     },
   });
 
