@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { GoogleGenAI } from "@google/genai"
-import './style.css'
 import ThemeContext from './ThemeContext'
 
 import Stack from '@mui/material/Stack';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import NumbersRoundedIcon from '@mui/icons-material/NumbersRounded';
 
+import { FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
 import DiscordWindow from './DiscordWindow'
+import BottomBar from './BottomBar';
 
 import emojis from './emojis.json' with {type: "json"};
 
@@ -76,10 +78,13 @@ const show_thoughts = false;
   return chat;
 }
 
-async function callGemini(chat, message, texts, setTexts) {
+async function callGemini(chat, message, texts, setTexts, setIsTyping) {
   
-  setTexts([...texts, message, '...']);
-
+  setTexts([...texts, message]);
+  const timeout = setTimeout(() => {
+    setIsTyping(()=>true);
+  }, 500); 
+  
   const response = await chat.sendMessageStream({message: message});
 
   let fullResponseText = '';
@@ -91,47 +96,34 @@ async function callGemini(chat, message, texts, setTexts) {
       console.log(parts[0].text);
     
     // text
-    if(chunk?.text) 
+    if(chunk?.text) {
+      
+      // 실제 답변이 나오기 시작하면 typing 메시지 제거
+      if(fullResponseText === '') {
+        clearTimeout(timeout);
+        setIsTyping(()=>false);
+      }
+      
       fullResponseText += chunk.text;
-
-    setTexts([...texts, message, fullResponseText]);
+      setTexts([...texts, message, fullResponseText]);
+    }
   }
-  // console.log(fullResponseText);
+  // // console.log(fullResponseText);
+  // console.log(chat.getHistory());
 }
 
-function BottomBar({ inputEnabled, onSendMessage }) {
-  
-  const handleSubmit = (event)=>{
-
-    event.preventDefault();
-    if(!inputEnabled) return;
-    
-    const message = event.target.message.value;
-    event.target.message.value = ''; //응답 다시 빈칸으로 만듦
-    
-    onSendMessage(message);
-  }
-
-  return(
-    <div id='bottomBar'>
-      <form onSubmit={handleSubmit}>
-        <textarea id='message' name='message'/>
-        <input id='message_submit' type='submit' value='Send'/>
-      </form>
-    </div>
-  );
-}
 
 function App() {
 
-  console.log('App updated');
+  const { darkMode, toggleMode } = useContext(ThemeContext); // light/dark mode context
 
-  const { mode, toggleMode } = useContext(ThemeContext); // light/dark mode context
   const [apiKey, setAPIKey] = useState(localStorage.getItem('apiKey') ?? '');
   const [model, setModel] = useState('gemini-2.5-flash');
   const chat = useRef(null);
+  
   const [texts, setTexts] = useState([]);
   const [isInputEnabled, setIsInputEnabled] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(()=>{ // 처음 한 번 + apikey, model 변화시 실행
     const history = chat.current?.getHistory();
@@ -141,34 +133,48 @@ function App() {
   const handleAPIKeyChange = (event)=>{
     setAPIKey(()=>event.target.value);
     localStorage.setItem('apiKey', event.target.value);
-  }
+  };
 
-  const handleModelChange = () => {
-    const newModel = model === 'gemini-2.5-flash' ? 'gemini-2.5-flash-lite' : 'gemini-2.5-flash';
-    
-    setModel(()=>newModel);
-  }
+  const handleModelChange = (event) => {
+    setModel(()=>event.target.value);
+  };
 
   const handleSendMessage = async (msg)=>{
     setIsInputEnabled(()=>false);
-    await callGemini(chat.current, msg, texts, setTexts);
+    await callGemini(chat.current, msg, texts, setTexts, setIsTyping);
     setIsInputEnabled(()=>true);
   };
 
   return (
-    <>
-      {/* Settings */}
-      <Stack direction="row" spacing={2}>
-        <input type='text' placeholder='api key' value={apiKey} onChange={ handleAPIKeyChange }/>
-        <input type='checkbox' onChange={handleModelChange}/> {model}
-        { mode==='light'? <LightModeIcon onClick={toggleMode}/> : <DarkModeIcon onClick={toggleMode}/> }
-        <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
-      </Stack>
+    <div id="mainApp">
 
-      <DiscordWindow texts={texts} />
+      {/* <div id="sideBar">
+        <div className="channelWrapper">
+          <NumbersRoundedIcon />
+        </div>
+      </div> */}
 
-      <BottomBar inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
-    </>
+      <div id="mainPage">
+        {/* Settings */}
+        <Stack direction="row" spacing={1} sx={{m: 1}}>
+          <TextField sx={{width:120}} label="API key" type='password' size="small" value={apiKey} onChange={handleAPIKeyChange} />
+          <FormControl sx={{m: 1, width: 180}} size='small' fullWidth>
+            <InputLabel>Model</InputLabel>
+            <Select label="Model" value={model} onChange={handleModelChange}>
+              <MenuItem value={'gemini-2.5-flash'}>Gemini 2.5 Flash</MenuItem>
+              <MenuItem value={'gemini-2.5-flash-lite'}>Gemini 2.5 Lite</MenuItem>
+            </Select>
+          </FormControl>
+          { darkMode ? <DarkModeIcon onClick={toggleMode}/> : <LightModeIcon onClick={toggleMode}/> }
+          <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
+        </Stack>
+        
+        <div id='contentContainer'>
+          <DiscordWindow texts={texts} />
+          <BottomBar isTyping={isTyping} inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
+        </div>
+      </div>
+    </div>
   );
 }
 

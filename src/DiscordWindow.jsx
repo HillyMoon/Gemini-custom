@@ -41,8 +41,24 @@ import {
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import emojis from './emojis.json' with {type: "json"};
+import ThemeContext from './ThemeContext';
+import { useContext } from 'react';
 
-function DiscordChatParser({ profile='User', text }) {
+const profiles = {
+  model: {
+    author: '미니',
+    avatar: './assets/mini.png',
+    bot: true,
+    verified: true,
+    roleColor: '#1e88e5'
+  },
+  user: {
+    author: 'User',
+    roleColor: '#ff0000'
+  }
+};
+
+function DiscordChatParser({ profile, text }) {
   
   let emojiMKtext = text;
 
@@ -50,8 +66,10 @@ function DiscordChatParser({ profile='User', text }) {
     emojiMKtext = emojiMKtext.replace(key, `![](https://cdn3.emoji.gg/emojis/${value}.gif)`);
   }
 
+  const { darkMode } = useContext(ThemeContext);
+
   return(
-    <DiscordMessage profile={profile}>
+    <DiscordMessage {...profile} lightTheme={!darkMode}>
       <ReactMarkdown
         children={emojiMKtext}
         remarkPlugins={[remarkGfm]}
@@ -86,13 +104,25 @@ function DiscordChatParser({ profile='User', text }) {
   );
 }
 
-function DiscordWindow({texts}){
+function DiscordWindow({texts}){ 
+
+  // texts=Array.from({length:20},()=>'message'); // For CSS Debugging
+
+  const { darkMode } = useContext(ThemeContext);
+
   return(
-    <DiscordMessages>
-      {texts.map( (text, i)=>( 
-        <DiscordChatParser text={text} key={i}/>
-      ))}
-    </DiscordMessages>
+    <div id="discordWindow">
+      <div id='discordWelcome'>
+        <p>Welcome to</p>
+        <p>Gemini-Custom</p>
+        <div>This is the beginning of this server.</div>
+      </div>
+      <DiscordMessages lightTheme={!darkMode} noBackground={false}>
+        {texts.map( (text, i)=>( 
+          <DiscordChatParser profile={profiles[i%2 ? 'model' : 'user']} text={text} key={i}/>
+        ))}
+      </DiscordMessages>
+    </div>
   );
 }
 
