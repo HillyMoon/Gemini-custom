@@ -29,8 +29,23 @@
 }
 
 /* 모든요소 감싸는 div, 전체화면 */
-div#mainWrapper{
-  height: 100dvh;
+div#mainApp {
+  width: 100vw; height: 100vh;
+  display: flex;
+}
+
+/* 사이드바 */
+div#sideBar {
+  width:250px;
+}
+div.channelWrapper {
+  margin: 0px 8px;
+}
+
+/* 메인화면 */
+div#mainPage{
+  flex:1;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -69,10 +84,19 @@ div#discordWelcome > div{
 }
 
 /* 하단바 */
-#bottomBar{
-  position: relative;
+#bottomBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 8px 8px;
+}
+
+#bottomBar{
+  flex-grow: 1;
   padding: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
   background-color: light-dark( white, #484850 );
   border: 1px solid light-dark(#DDDDDD, #505050);
   border-radius: 10px;
@@ -80,6 +104,7 @@ div#discordWelcome > div{
 
 #message{
   position: relative;
+  flex: 1 1 0;
   width: 100%;
   max-height: 145px;
   field-sizing: content;
@@ -87,6 +112,16 @@ div#discordWelcome > div{
   border: none; outline: none;
   font-size: 16px;
   resize: none;
+}
+
+button#messageSubmit {
+  width: 43px; height: 43px;
+  border-radius: 43px;
+  border: 1px solid light-dark(#DDDDDD, #505050);
+  display: flex;
+  align-items: center; justify-content: center;
+  padding-left: 9px;
+  background-color: light-dark(lightgrey, #484850);
 }
 
 /* 입력중 표시 */

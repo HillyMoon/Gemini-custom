@@ -117,7 +117,7 @@ function DiscordWindow({texts}){
         <p>Gemini-Custom</p>
         <div>This is the beginning of this server.</div>
       </div>
-      <DiscordMessages lightTheme={!darkMode}>
+      <DiscordMessages lightTheme={!darkMode} noBackground={false}>
         {texts.map( (text, i)=>( 
           <DiscordChatParser profile={profiles[i%2 ? 'model' : 'user']} text={text} key={i}/>
         ))}

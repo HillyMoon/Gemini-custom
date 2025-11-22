@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import ThemeContext from './ThemeContext';
+import MobileDetect from 'mobile-detect';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+
+const isPhone = new MobileDetect(window.navigator.userAgent).mobile() !== null;
 
 function useInterval(callback, delay) {
 	const savedCallback = useRef();
@@ -66,7 +70,7 @@ function TypingIndicator() {
   );
 }
 
-function BottomBar({ isTyping, inputEnabled, onSendMessage }) {
+function InputBarPC({ inputEnabled, onSendMessage }) {
   
   const handleKeyDown = (event) => {
     if(event.key === 'Enter' && !event.shiftKey){ //shift+Enter아닌 그냥 Enter에서
@@ -82,13 +86,50 @@ function BottomBar({ isTyping, inputEnabled, onSendMessage }) {
   };
 
   return(
+    <div id='bottomBar'>
+      <textarea id='message' onKeyDown={handleKeyDown} placeholder='Message #Gemini-custom'/>
+    </div>
+  );
+}
+
+function InputBarMobile({ inputEnabled, onSendMessage }) {
+
+  const [message, setMessage] = useState('');
+
+  const handleChange = (event) => {
+    setMessage(()=>event.target.value);
+  };
+
+  const handleClick = () => {
+    if(!inputEnabled) return;
+
+    setMessage(()=>'');
+    
+    onSendMessage(message);
+  };
+
+  return (
     <>
-      {isTyping && <TypingIndicator />}
       <div id='bottomBar'>
-        <textarea id='message' onKeyDown={handleKeyDown} name='message' placeholder='Message #Gemini-custom'/>
+        <textarea id='message' value={message} onChange={handleChange} placeholder='Message #Gemini-custom'/>
+      </div>
+      {message && <button id="messageSubmit" onClick={handleClick}><SendRoundedIcon/></button>}
+    </>
+  );
+}
+
+function BottomBar(props) {
+
+  return (
+    <>
+      {props.isTyping && <TypingIndicator />}
+    
+      <div id="bottomBarContainer">
+        {isPhone ? <InputBarMobile {...props}/> : <InputBarPC {...props}/>}
       </div>
     </>
   );
+
 }
 
 export default BottomBar;

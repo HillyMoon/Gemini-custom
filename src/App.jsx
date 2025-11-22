@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import NumbersRoundedIcon from '@mui/icons-material/NumbersRounded';
 
 import { FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
 import DiscordWindow from './DiscordWindow'
@@ -107,8 +108,8 @@ async function callGemini(chat, message, texts, setTexts, setIsTyping) {
       setTexts([...texts, message, fullResponseText]);
     }
   }
-  // console.log(fullResponseText);
-  console.log(chat.getHistory());
+  // // console.log(fullResponseText);
+  // console.log(chat.getHistory());
 }
 
 
@@ -145,24 +146,33 @@ function App() {
   };
 
   return (
-    <div id="mainWrapper">
-      {/* Settings */}
-      <Stack direction="row" spacing={1} sx={{m: 1}}>
-        <TextField sx={{maxWidth:120}} label="API key" type='password' size="small" value={apiKey} onChange={handleAPIKeyChange} />
-        <FormControl sx={{m: 1, width: 180}} size='small' fullWidth>
-          <InputLabel>Model</InputLabel>
-          <Select label="Model" value={model} onChange={handleModelChange}>
-            <MenuItem value={'gemini-2.5-flash'}>Gemini 2.5 Flash</MenuItem>
-            <MenuItem value={'gemini-2.5-flash-lite'}>Gemini 2.5 Lite</MenuItem>
-          </Select>
-        </FormControl>
-        { darkMode ? <DarkModeIcon onClick={toggleMode}/> : <LightModeIcon onClick={toggleMode}/> }
-        <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
-      </Stack>
-      
-      <div id='contentContainer'>
-        <DiscordWindow texts={texts} />
-        <BottomBar isTyping={isTyping} inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
+    <div id="mainApp">
+
+      {/* <div id="sideBar">
+        <div className="channelWrapper">
+          <NumbersRoundedIcon />
+        </div>
+      </div> */}
+
+      <div id="mainPage">
+        {/* Settings */}
+        <Stack direction="row" spacing={1} sx={{m: 1}}>
+          <TextField sx={{width:120}} label="API key" type='password' size="small" value={apiKey} onChange={handleAPIKeyChange} />
+          <FormControl sx={{m: 1, width: 180}} size='small' fullWidth>
+            <InputLabel>Model</InputLabel>
+            <Select label="Model" value={model} onChange={handleModelChange}>
+              <MenuItem value={'gemini-2.5-flash'}>Gemini 2.5 Flash</MenuItem>
+              <MenuItem value={'gemini-2.5-flash-lite'}>Gemini 2.5 Lite</MenuItem>
+            </Select>
+          </FormControl>
+          { darkMode ? <DarkModeIcon onClick={toggleMode}/> : <LightModeIcon onClick={toggleMode}/> }
+          <a href='https://github.com/HillyMoon/Gemini-custom' target='_blank'><GitHubIcon/></a>
+        </Stack>
+        
+        <div id='contentContainer'>
+          <DiscordWindow texts={texts} />
+          <BottomBar isTyping={isTyping} inputEnabled={isInputEnabled} onSendMessage={ handleSendMessage }/>
+        </div>
       </div>
     </div>
   );
