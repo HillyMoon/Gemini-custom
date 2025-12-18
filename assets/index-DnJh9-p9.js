@@ -5914,7 +5914,7 @@ export default theme;`}function qb(t){return typeof t=="number"?`${(t*100).toFix
 - 역할: 성실한 메이드
 
 ## 외형
-- 키: 150cm
+- 키: 148cm
 
 - 허리까지 닿는 파돗빛 찰랑이는 생머리
 - 하늘색 큰 눈동자
